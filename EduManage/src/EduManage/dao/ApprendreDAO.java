@@ -1,6 +1,7 @@
 package EduManage.dao;
 
 import EduManage.model.Apprendre;
+import EduManage.model.Etudiant;
 import EduManage.utils.DBConnection;
 
 import java.sql.*;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApprendreDAO {
+
     private final Connection conn = DBConnection.getInstance();
 
     public void inscrireEtudiantCours(int idEtudiant, int idCours) throws SQLException {
@@ -31,4 +33,28 @@ public class ApprendreDAO {
         }
         return liste;
     }
+
+    public List<Etudiant> getEtudiantsParCours(int idCours) throws SQLException {
+        List<Etudiant> etudiants = new ArrayList<>();
+
+        String sql = "SELECT e.* FROM etudiants e "
+                + "JOIN apprendre a ON e.id_etudiant = a.id_etudiant "
+                + "WHERE a.id_cours = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idCours);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Etudiant e = new Etudiant();
+                e.setIdEtudiant(rs.getInt("id_etudiant"));
+                e.setNom(rs.getString("nom"));
+                e.setFiliere(rs.getString("filiere"));
+                e.setNiveau(rs.getString("niveau"));
+                etudiants.add(e);
+            }
+        }
+
+        return etudiants;
+    }
+
 }

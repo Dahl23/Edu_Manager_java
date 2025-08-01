@@ -10,13 +10,15 @@ import java.util.List;
 public class EtudiantDAO {
     private final Connection conn = DBConnection.getInstance();
 
-    public void ajouter(Etudiant e) throws SQLException {
-        String sql = "INSERT INTO etudiants (nom, matricule, email, niveau) VALUES (?, ?, ?, ?)";
+    public void ajouter(Etudiant etudiant, int idUtilisateur) throws SQLException {
+        String sql = "INSERT INTO etudiants (id_utilisateur, nom, matricule, email, niveau, filiere) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, e.getNom());
-            ps.setString(2, e.getMatricule());
-            ps.setString(3, e.getEmail());
-            ps.setString(4, e.getNiveau());
+            ps.setInt(1, etudiant.getId_utilisateur());
+            ps.setString(2, etudiant.getNom());
+            ps.setString(3, etudiant.getMatricule());
+            ps.setString(4, etudiant.getEmail());
+            ps.setString(5, etudiant.getNiveau());
+            ps.setString(6, etudiant.getFiliere());
             ps.executeUpdate();
         }
     }
@@ -33,13 +35,14 @@ public class EtudiantDAO {
                 e.setMatricule(rs.getString("matricule"));
                 e.setEmail(rs.getString("email"));
                 e.setNiveau(rs.getString("niveau"));
+                e.setFiliere(rs.getString("Filiere"));
                 liste.add(e);
             }
         }
         return liste;
     }
 
-    public void ajouter(Etudiant etudiant, int idUtilisateur) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+//    public void ajouter(Etudiant etudiant, int idUtilisateur) {
+//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+//    }
 }

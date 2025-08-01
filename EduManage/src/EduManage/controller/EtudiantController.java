@@ -15,7 +15,7 @@ public class EtudiantController {
     public void ajouterEtudiant(Etudiant etudiant) throws SQLException {
         Utilisateur utilisateur = new Utilisateur();
         utilisateur.setNomUtilisateur(etudiant.getEmail());
-        utilisateur.setMotDePasse("1234"); // mot de passe par défaut
+        utilisateur.setMotDePasse(""); // mot de passe par défaut
         utilisateur.setRole("etudiant");
 
         int idUtilisateur = utilisateurDAO.ajouterUtilisateur(utilisateur);

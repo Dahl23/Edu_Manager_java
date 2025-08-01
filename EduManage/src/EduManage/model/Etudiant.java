@@ -7,6 +7,7 @@ public class Etudiant {
     private String email;
     private String niveau;
     private String filiere;
+    private int id_utilisateur;
 
     public int getIdEtudiant() {
         return idEtudiant;
@@ -54,6 +55,14 @@ public class Etudiant {
 
     public void setFiliere(String filiere) {
         this.filiere = filiere;
+    }
+    
+    public int getId_utilisateur() {
+        return id_utilisateur;
+    }
+
+    public void setIdUtilisateur(int id_utilisateur) {
+        this.id_utilisateur = id_utilisateur;
     }
     
     @Override

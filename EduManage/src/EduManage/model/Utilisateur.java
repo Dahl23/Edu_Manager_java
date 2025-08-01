@@ -1,12 +1,17 @@
 package EduManage.model;
 
 public class Utilisateur {
+
     private int idUtilisateur;
     private String nomUtilisateur;
     private String motDePasse;
     private String role; // admin, etudiant, enseignant
     private Integer idEtudiant;   // null si pas concerné
     private Integer idEnseignant; // null si pas concerné
+
+
+    
+    
 
     public int getIdUtilisateur() {
         return idUtilisateur;
@@ -54,5 +59,14 @@ public class Utilisateur {
 
     public void setIdEnseignant(Integer idEnseignant) {
         this.idEnseignant = idEnseignant;
+    }
+
+    public void setNom(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public String toString() {
+        return nomUtilisateur != null ? nomUtilisateur : "Utilisateur inconnu";
     }
 }
