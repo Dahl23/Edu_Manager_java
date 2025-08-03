@@ -6,7 +6,6 @@
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/LoginView.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/AjoutEvaluationView.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/AdminDashboard.java</file>
-            <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/AjoutUtilisateurView.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/AjoutEtudiantView.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/model/Utilisateur.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/dao/UtilisateurDAO.java</file>
@@ -24,7 +23,6 @@
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/utils/DBConnection.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/controller/EtudiantController.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/dao/EvaluationDAO.java</file>
-            <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/AjoutNotePourEtudiantView.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/EtudiantDashboard.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/model/Evaluation.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/controller/EvaluationController.java</file>
@@ -34,8 +32,7 @@
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/dao/CoursDAO.java</file>
             <file>file:/C:/Edu_Manager_java/EduManage/build.xml</file>
             <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/controller/CoursController.java</file>
-            <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/Accueil.java</file>
-            <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/GererUtilisateursView.java</file>
+            <file>file:/C:/Edu_Manager_java/EduManage/src/EduManage/view/InscriptionEtudiantView.java</file>
         </group>
     </open-files>
 </project-private>

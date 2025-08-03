@@ -133,4 +133,38 @@ public class UtilisateurDAO {
             ps.executeUpdate();
         }
     }
+    
+        // ✅ Compter tous les utilisateurs
+    public long countTotal() {
+        long count = 0;
+        String sql = "SELECT COUNT(*) FROM utilisateur";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                count = rs.getLong(1);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Erreur lors du comptage total des utilisateurs : " + e.getMessage());
+        }
+        return count;
+    }
+
+    // ✅ Compter les utilisateurs par rôle
+    public long countByRole(String role) {
+        long count = 0;
+        String sql = "SELECT COUNT(*) FROM utilisateur WHERE role = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, role);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors du comptage des utilisateurs par rôle (" + role + ") : " + e.getMessage());
+        }
+        return count;
+    }
 }

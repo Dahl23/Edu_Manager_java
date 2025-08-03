@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UtilisateurController {
+
     private final UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
 
     public Utilisateur seConnecter(String nomUtilisateur, String motDePasse, String role) {
@@ -31,4 +32,13 @@ public class UtilisateurController {
     public void supprimerUtilisateur(int idUtilisateur) throws SQLException {
         utilisateurDAO.supprimerUtilisateur(idUtilisateur);
     }
+
+    public void countTotalUsers() {
+        utilisateurDAO.countTotal();
+    }
+
+    public void countByRole(String role) {
+        utilisateurDAO.countByRole(role);
+    }
+
 }
