@@ -1,13 +1,11 @@
 package EduManage.controller;
 
 import EduManage.dao.ApprendreDAO;
-import EduManage.model.Etudiant;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class ApprendreController {
-
     private final ApprendreDAO apprendreDAO = new ApprendreDAO();
 
     public void inscrireEtudiantACours(int idEtudiant, int idCours) throws SQLException {
@@ -17,9 +15,4 @@ public class ApprendreController {
     public List<Integer> getCoursParEtudiant(int idEtudiant) throws SQLException {
         return apprendreDAO.getCoursParEtudiant(idEtudiant);
     }
-
-    public List<Etudiant> getEtudiantsParCours(int idCours) throws SQLException {
-        return apprendreDAO.getEtudiantsParCours(idCours);
-    }
-
 }

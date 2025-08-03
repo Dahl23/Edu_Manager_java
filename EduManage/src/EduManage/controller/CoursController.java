@@ -16,16 +16,4 @@ public class CoursController {
     public List<Cours> getTousLesCours() throws SQLException {
         return coursDAO.lister();
     }
-
-    public void modifierCours(Cours c) throws SQLException {
-        coursDAO.modifier(c);
-    }
-
-    public void supprimerCours(int idCours) throws SQLException {
-        coursDAO.supprimer(idCours);
-    }
-
-    public Cours getCoursParId(int idCours) throws SQLException {
-        return coursDAO.getCoursParId(idCours);
-    }
 }

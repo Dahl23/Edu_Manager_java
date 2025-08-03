@@ -1,197 +1,259 @@
 package EduManage.view;
 
-import EduManage.dao.EvaluationDAO;
-import EduManage.dao.UtilisateurDAO;
+import EduManage.controller.EvaluationController;
 import EduManage.model.Cours;
-import EduManage.model.Evaluation;
-import EduManage.model.Utilisateur;
+import EduManage.model.Etudiant;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AjoutEvaluationView extends JFrame {
+    private JComboBox<String> typeEvaluationComboBox;
+    private JComboBox<Cours> coursComboBox;
+    private JTable etudiantsTable;
+    private JButton enregistrerButton;
+    private JButton btnDeconnexion;
 
-    private final Cours cours;
-    private final JComboBox<Utilisateur> etudiantComboBox;
-    private final JComboBox<String> typeComboBox;
-    private final JTextField noteField;
-    private final DefaultListModel<String> evaluationListModel;
-    private final JLabel messageLabel = new JLabel("");
+    private EvaluationController evaluationController = new EvaluationController();
 
-    public AjoutEvaluationView(Cours cours) {
-        this.cours = cours;
-
-        setTitle("Ajouter une Évaluation - " + cours.getLibelle());
-        setSize(550, 550);
-        setLocationRelativeTo(null);
+    public AjoutEvaluationView() throws SQLException {
+        setTitle("Ajouter Évaluation");
+        setSize(800, 520);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setResizable(false);
+        setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
 
-        // === Header avec Titre + Déconnexion ===
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(52, 152, 219));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        // Haut : type d'évaluation et cours
+        JPanel topPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        topPanel.setBorder(BorderFactory.createTitledBorder("Informations d'évaluation"));
 
-        JLabel titleLabel = new JLabel("Ajouter une Évaluation");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        titleLabel.setForeground(Color.WHITE);
+        topPanel.add(new JLabel("Type d'évaluation :"));
+        typeEvaluationComboBox = new JComboBox<>(new String[]{"TP", "Examen"});
+        topPanel.add(typeEvaluationComboBox);
 
-        JButton deconnexionBtn = new JButton("Déconnexion");
-        deconnexionBtn.setFocusPainted(false);
-        deconnexionBtn.setBackground(new Color(231, 76, 60));
-        deconnexionBtn.setForeground(Color.WHITE);
-        deconnexionBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
-        deconnexionBtn.setPreferredSize(new Dimension(130, 35));
+        topPanel.add(new JLabel("Cours :"));
+        coursComboBox = new JComboBox<>();
+        for (Cours cours : evaluationController.getCoursDisponibles()) {
+            coursComboBox.addItem(cours);
+        }
+        topPanel.add(coursComboBox);
 
-        deconnexionBtn.addActionListener(e -> {
-            int result = JOptionPane.showConfirmDialog(
-                    this,
-                    "Êtes-vous sûr de vouloir vous déconnecter ?",
-                    "Confirmation de déconnexion",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+        panel.add(topPanel, BorderLayout.NORTH);
 
-            if (result == JOptionPane.YES_OPTION) {
+        // Centre : table des étudiants
+        List<Etudiant> etudiants = evaluationController.getEtudiantsDisponibles();
+        String[] colonnes = {"ID", "Nom", "Matricule", "Filière", "Niveau", "Note"};
+        Object[][] donnees = new Object[etudiants.size()][6];
+        for (int i = 0; i < etudiants.size(); i++) {
+            donnees[i][0] = etudiants.get(i).getIdEtudiant();
+            donnees[i][1] = etudiants.get(i).getNom();
+            donnees[i][2] = etudiants.get(i).getMatricule();
+            donnees[i][3] = etudiants.get(i).getFiliere();
+            donnees[i][4] = etudiants.get(i).getNiveau();
+            donnees[i][5] = 0.0; // note initiale
+        }
+
+        etudiantsTable = new JTable(donnees, colonnes);
+        JScrollPane scrollPane = new JScrollPane(etudiantsTable);
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Notes des étudiants"));
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Bas : boutons enregistrer et déconnexion dans un sous-panel
+        enregistrerButton = new JButton("Enregistrer les évaluations");
+        btnDeconnexion = new JButton("Se Déconnecter");
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        bottomPanel.add(enregistrerButton);
+        bottomPanel.add(btnDeconnexion);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+
+        add(panel);
+        setVisible(true);
+
+        // Action bouton enregistrer
+        enregistrerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String type = (String) typeEvaluationComboBox.getSelectedItem();
+                Cours cours = (Cours) coursComboBox.getSelectedItem();
+                double maxNote = type.equals("TP") ? 8.0 : 12.0;
+
+                for (int i = 0; i < etudiantsTable.getRowCount(); i++) {
+                    int idEtudiant = (int) etudiantsTable.getValueAt(i, 0);
+                    Object valeur = etudiantsTable.getValueAt(i, 5);
+                    float note;
+
+                    try {
+                        note = (float) Double.parseDouble(valeur.toString());
+                        if (note < 0 || note > maxNote) {
+                            JOptionPane.showMessageDialog(null, "Note invalide pour l'étudiant ID " + idEtudiant +
+                                    " : doit être entre 0 et " + maxNote);
+                            return;
+                        }
+
+                        evaluationController.ajouterEvaluation(idEtudiant, cours.getIdCours(), type, note);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Note invalide pour l'étudiant ID " + idEtudiant);
+                        return;
+                    } catch (SQLException ex) {
+                        Logger.getLogger(AjoutEvaluationView.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                JOptionPane.showMessageDialog(null, "Évaluations enregistrées avec succès !");
                 dispose();
-                new LoginView().setVisible(true);
             }
         });
 
-        // Remplace si besoin
-        headerPanel.add(titleLabel, BorderLayout.WEST);
-        headerPanel.add(deconnexionBtn, BorderLayout.EAST);
-
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-
-        // === Liste des évaluations existantes ===
-        evaluationListModel = new DefaultListModel<>();
-        JList<String> evaluationList = new JList<>(evaluationListModel);
-        evaluationList.setBorder(BorderFactory.createTitledBorder("Évaluations existantes"));
-        evaluationList.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        JScrollPane scrollPane = new JScrollPane(evaluationList);
-        scrollPane.setPreferredSize(new Dimension(500, 120));
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        // === Formulaire d'ajout ===
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(Color.WHITE);
-        formPanel.setBorder(BorderFactory.createTitledBorder("Nouvelle évaluation"));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 20, 10, 20);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        etudiantComboBox = new JComboBox<>();
-        chargerEtudiants();
-        addFormRow(formPanel, gbc, 0, "Étudiant :", etudiantComboBox);
-
-        typeComboBox = new JComboBox<>(new String[]{"TP", "Examen", "Projet"});
-        addFormRow(formPanel, gbc, 1, "Type d'évaluation :", typeComboBox);
-
-        noteField = new JTextField();
-        addFormRow(formPanel, gbc, 2, "Note :", noteField);
-
-        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        messageLabel.setFont(new Font("SansSerif", Font.ITALIC, 13));
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        formPanel.add(messageLabel, gbc);
-
-        // === Bouton enregistrer ===
-        JButton enregistrerBtn = new JButton("Enregistrer");
-        enregistrerBtn.setPreferredSize(new Dimension(120, 35));
-        enregistrerBtn.setBackground(new Color(0, 123, 255));
-        enregistrerBtn.setForeground(Color.WHITE);
-        enregistrerBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
-        enregistrerBtn.setFocusPainted(false);
-        enregistrerBtn.addActionListener(this::enregistrerEvaluation);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(Color.WHITE);
-        buttonPanel.add(enregistrerBtn);
-
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBackground(Color.WHITE);
-        bottomPanel.add(formPanel, BorderLayout.CENTER);
-        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
-
-        add(mainPanel);
-        chargerEvaluations();
-    }
-
-    private void addFormRow(JPanel panel, GridBagConstraints gbc, int y, String label, JComponent input) {
-        gbc.gridx = 0;
-        gbc.gridy = y;
-        gbc.gridwidth = 1;
-        panel.add(new JLabel(label), gbc);
-
-        gbc.gridx = 1;
-        panel.add(input, gbc);
-    }
-
-    private void chargerEtudiants() {
-        try {
-            UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
-            List<Utilisateur> etudiants = utilisateurDAO.getEtudiantsParCours(cours.getIdCours());
-            etudiantComboBox.removeAllItems();
-            for (Utilisateur etu : etudiants) {
-                etudiantComboBox.addItem(etu);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des étudiants : " + e.getMessage());
-        }
-    }
-
-    private void chargerEvaluations() {
-        try {
-            EvaluationDAO evaluationDAO = new EvaluationDAO();
-            List<Evaluation> evaluations = evaluationDAO.getEvaluationsParCours(cours.getIdCours());
-            evaluationListModel.clear();
-            for (Evaluation ev : evaluations) {
-                String ligne = ev.getEtudiant().getNom() + " - " + ev.getTypeEvaluation() + " : " + ev.getNote();
-                evaluationListModel.addElement(ligne);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des évaluations.");
-        }
-    }
-
-    private void enregistrerEvaluation(ActionEvent e) {
-        try {
-            Utilisateur etudiant = (Utilisateur) etudiantComboBox.getSelectedItem();
-            String type = (String) typeComboBox.getSelectedItem();
-            float note = Float.parseFloat(noteField.getText());
-
-            Evaluation evaluation = new Evaluation();
-            evaluation.setCours(cours);
-            evaluation.setEtudiant(etudiant);
-            evaluation.setTypeEvaluation(type);
-            evaluation.setNote(note);
-
-            EvaluationDAO evaluationDAO = new EvaluationDAO();
-            evaluationDAO.ajouterEvaluation(evaluation);
-
-            messageLabel.setText("✅ Évaluation enregistrée !");
-            messageLabel.setForeground(new Color(0, 128, 0));
-
-            noteField.setText("");
-            chargerEvaluations();
-
-        } catch (NumberFormatException ex) {
-            messageLabel.setText("❌ Note invalide (entrez un nombre)");
-            messageLabel.setForeground(Color.RED);
-        } catch (Exception ex) {
-            messageLabel.setText("❌ Erreur lors de l'enregistrement");
-            messageLabel.setForeground(Color.RED);
-        }
+        // Action bouton déconnexion
+        btnDeconnexion.addActionListener(e -> {
+            dispose();
+            new LoginView().setVisible(true);
+        });
     }
 }
+
+
+
+
+//package EduManage.view;
+//
+//import EduManage.controller.EvaluationController;
+//import EduManage.dao.EvaluationDAO;
+//import EduManage.model.Cours;
+//import EduManage.model.Etudiant;
+//
+//import javax.swing.*;
+//import java.awt.*;
+//import java.awt.event.ActionEvent;
+//import java.awt.event.ActionListener;
+//import java.sql.SQLException;
+//import java.util.List;
+//
+//public class AjoutEvaluationView extends JFrame {
+//    private JComboBox<String> typeEvaluationComboBox;
+//    private JComboBox<Cours> coursComboBox;
+//    private JComboBox<Etudiant> etudiantComboBox;
+//    private JTextField noteField;
+//    private JButton enregistrerButton;
+//
+//    private EvaluationController evaluationController;
+//    private EvaluationDAO evaluationDAO;
+//
+//    private int idEnseignant;
+//
+//    public AjoutEvaluationView() {
+//        this.idEnseignant = idEnseignant;
+//        this.evaluationController = new EvaluationController();
+//        this.evaluationDAO = new EvaluationDAO();
+//
+//        setTitle("Ajout d'une évaluation");
+//        setSize(450, 300);
+//        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//        setLocationRelativeTo(null);
+//
+//        initUI();
+//        chargerCours();
+//        chargerEtudiants();
+//
+//        setVisible(true);
+//    }
+//
+//    private void initUI() {
+//        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+//
+//        panel.add(new JLabel("Type d'évaluation :"));
+//        typeEvaluationComboBox = new JComboBox<>(new String[]{"TP", "Examen"});
+//        panel.add(typeEvaluationComboBox);
+//
+//        panel.add(new JLabel("Cours :"));
+//        coursComboBox = new JComboBox<>();
+//        panel.add(coursComboBox);
+//
+//
+//////   topPanel.add(new JLabel("Cours :"));
+////        panel.add(new JLabel("Cours :"));
+////        coursComboBox = new JComboBox<>();
+////        for (Cours c : evaluationController.getCoursDisponibles(int idEnseignant)) {
+////            coursComboBox.addItem(c);
+////        }
+////        panel.add(coursComboBox);
+//
+//
+//        panel.add(new JLabel("Étudiant :"));
+//        etudiantComboBox = new JComboBox<>();
+//        panel.add(etudiantComboBox);
+//
+//        panel.add(new JLabel("Note :"));
+//        noteField = new JTextField();
+//        panel.add(noteField);
+//
+//        enregistrerButton = new JButton("Enregistrer");
+//        enregistrerButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                enregistrerEvaluation();
+//            }
+//        });
+//
+//        panel.add(new JLabel()); // vide
+//        panel.add(enregistrerButton);
+//
+//        add(panel);
+//    }
+//
+//    private void chargerCours() {
+//        try {
+//            List<Cours> coursList = evaluationDAO.getCoursDisponibles(idEnseignant);
+//            for (Cours c : coursList) {
+//                coursComboBox.addItem(c);
+//            }
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des cours.");
+//        }
+//    }
+//
+//    private void chargerEtudiants() {
+//        try {
+//            List<Etudiant> etudiants = evaluationDAO.getEtudiantsDisponibles(idEnseignant);
+//            for (Etudiant e : etudiants) {
+//                etudiantComboBox.addItem(e);
+//            }
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des étudiants.");
+//        }
+//    }
+//
+//    private void enregistrerEvaluation() {
+//        String type = (String) typeEvaluationComboBox.getSelectedItem();
+//        String noteStr = noteField.getText();
+//
+//        Cours cours = (Cours) coursComboBox.getSelectedItem();
+//        Etudiant etudiant = (Etudiant) etudiantComboBox.getSelectedItem();
+//
+//        if (cours == null || etudiant == null || type == null || noteStr.isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs.");
+//            return;
+//        }
+//
+//        try {
+//            float note = Float.parseFloat(noteStr);
+//            evaluationController.ajouterEvaluation(etudiant.getIdEtudiant(), cours.getIdCours(), type, note);
+//            JOptionPane.showMessageDialog(this, "Évaluation ajoutée avec succès.");
+//            dispose(); // fermer la fenêtre
+//        } catch (NumberFormatException ex) {
+//            JOptionPane.showMessageDialog(this, "La note doit être un nombre.");
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            JOptionPane.showMessageDialog(this, "Erreur lors de l'ajout de l'évaluation.");
+//        }
+//    }
+//}

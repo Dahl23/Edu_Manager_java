@@ -37,10 +37,4 @@ public class EvaluationController {
         return evaluationDAO.getEtudiantsDisponibles();
     }
 
-    public List<Evaluation> getEvaluationsByEtudiant(int idEtudiant) {
-        EvaluationDAO evaluationDAO = new EvaluationDAO();
-        return evaluationDAO.getEvaluationsByEtudiant(idEtudiant);
-    }
-
-
 }

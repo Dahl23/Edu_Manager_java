@@ -11,12 +11,11 @@ public class EnseignantDAO {
     private final Connection conn = DBConnection.getInstance();
 
     public void ajouter(Enseignant e) throws SQLException {
-        String sql = "INSERT INTO enseignants (id_utilisateur, nom, email, specialite) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO enseignants (nom, email, specialite) VALUES (?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, e.getId_utilisateur());
-            ps.setString(2, e.getNom());
-            ps.setString(3, e.getEmail());
-            ps.setString(4, e.getSpecialite());
+            ps.setString(1, e.getNom());
+            ps.setString(2, e.getEmail());
+            ps.setString(3, e.getSpecialite());
             ps.executeUpdate();
         }
     }
